@@ -30,11 +30,15 @@ lazy val server = (project in file("server")).settings(
   resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",
   resolvers += sbt.Resolver.bintrayRepo("denigma", "denigma-releases"),
   libraryDependencies ++= Seq(
+    ws,
+    "com.lihaoyi" %%% "autowire" % "0.2.5",
+    "com.lihaoyi" %%% "upickle" % "0.3.6",
     "com.vmunier" %% "play-scalajs-scripts" % "0.3.0",
+    "org.ababup1192" % "hybridparser_2.11" % "0.1.0",
     specs2 % Test
   ),
   // Heroku specific
-  herokuAppName in Compile := "still-headland-8667",
+  herokuAppName in Compile := "json-hybrid-editor",
   herokuSkipSubProjects in Compile := false
 ).enablePlugins(PlayScala).
   aggregate(clients.map(projectToRef): _*).
@@ -46,6 +50,8 @@ lazy val client = (project in file("client")).settings(
   persistLauncher in Test := false,
   resolvers += "amateras-repo" at "http://amateras.sourceforge.jp/mvn-snapshot/",
   libraryDependencies ++= Seq(
+    "com.lihaoyi" %%% "autowire" % "0.2.5",
+    "com.lihaoyi" %%% "upickle" % "0.3.6",
     "org.scala-js" %%% "scalajs-dom" % "0.8.0",
     "be.doeraene" %%% "scalajs-jquery" % "0.8.1",
     "com.lihaoyi" %%% "scalarx" % "0.2.8",
@@ -57,7 +63,9 @@ lazy val client = (project in file("client")).settings(
   dependsOn(sharedJs)
 
 lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared")).
-  settings(scalaVersion := scalaV).
+  settings(
+    scalaVersion := scalaV,
+    libraryDependencies += "org.ababup1192" % "hybridparser_2.11" % "0.1.0").
   jsConfigure(_ enablePlugins ScalaJSPlay)
 
 lazy val sharedJvm = shared.jvm

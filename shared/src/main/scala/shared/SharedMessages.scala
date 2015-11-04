@@ -1,5 +1,7 @@
 package shared
 
-object SharedMessages {
-  def itWorks = "It works!"
+import org.ababup1192.parser.Node
+
+trait Api {
+  def textToAst(text: String): String
 }
