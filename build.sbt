@@ -28,9 +28,9 @@ lazy val server = (project in file("server")).settings(
   scalaJSProjects := clients,
   pipelineStages := Seq(scalaJSProd, gzip),
   resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",
+  resolvers += sbt.Resolver.bintrayRepo("denigma", "denigma-releases"),
   libraryDependencies ++= Seq(
     "com.vmunier" %% "play-scalajs-scripts" % "0.3.0",
-    "org.webjars" % "jquery" % "1.11.1",
     specs2 % Test
   ),
   // Heroku specific
@@ -44,10 +44,14 @@ lazy val client = (project in file("client")).settings(
   scalaVersion := scalaV,
   persistLauncher := true,
   persistLauncher in Test := false,
+  resolvers += "amateras-repo" at "http://amateras.sourceforge.jp/mvn-snapshot/",
   libraryDependencies ++= Seq(
     "org.scala-js" %%% "scalajs-dom" % "0.8.0",
+    "be.doeraene" %%% "scalajs-jquery" % "0.8.1",
     "com.lihaoyi" %%% "scalarx" % "0.2.8",
-    "fr.iscpif" %%% "scaladget" % "0.7.0"
+    "fr.iscpif" %%% "scaladget" % "0.7.0",
+    "com.scalawarrior" %%% "scalajs-ace" % "0.0.1-SNAPSHOT",
+    "org.ababup1192" % "hybridparser_2.11" % "0.1.0"
   )
 ).enablePlugins(ScalaJSPlugin, ScalaJSPlay).
   dependsOn(sharedJs)

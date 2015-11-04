@@ -68,8 +68,6 @@ object Graph {
     svg
       .on("mousemove", (_: js.Any, _: Double) => mouseMove())
       .on("mouseup.scene", (_: js.Any, _: Double) ⇒ mouseUp())
-
-
   }
 
   def addTask(id: String, title: String, x: Double, y: Double): Unit =
@@ -95,7 +93,6 @@ object Graph {
       }
 
       newNode.on("mousedown", (t: Var[Task], n: Double) ⇒ {
-
         mouseDownTask() = Some(t())
         d3.event.stopPropagation
 
