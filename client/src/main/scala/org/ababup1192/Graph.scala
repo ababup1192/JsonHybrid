@@ -1,25 +1,75 @@
 package org.ababup1192
 
-import java.util.UUID
-
 import fr.iscpif.scaladget.d3._
-import org.scalajs.dom
 import rx._
 
 import scala.scalajs.js
 import scala.scalajs.js.Dynamic.{literal => lit}
-import scala.scalajs.js.JSConverters._
 
 class Graph {
-
   val svg = d3.select("#graph")
     .append("svg")
     .attr("id", "workflow")
-    .attr("width", "500px")
-    .attr("height", "400px")
+    .attr("width", "100%")
+    .attr("height", "500px")
     .style("border-style", "solid")
   val graph = svg.append("g").classed("graph", true)
-  val circleRoot = graph.append("g").classed("circleRoot", true)
+
+  def clear(): Unit = {
+    graph.selectAll("*").remove()
+  }
+
+  def addEntry(key: String, depth: Int, num: Int): Unit = {
+    println(key, depth, num)
+    val entryHeight = 60
+    val entry = graph.append("g")
+      .classed("entry", true)
+      .attr("transform", (d: js.Any, i: Double) => {
+        s"translate(${depth * 10}, ${20 + entryHeight + (num - 1) * 100} )"
+      })
+
+    entry.append("rect")
+      .attr("width", 15 + key.length * 10)
+      .attr("height", entryHeight - 1)
+      .attr("fill", "white")
+      .attr("stroke", "rgb(0, 0, 0)")
+      .attr("stroke-width", 3)
+
+    entry.append("text")
+      .attr("x", 10)
+      .attr("y", entryHeight / 2)
+      .attr("dy", ".35em")
+      .text(key)
+  }
+
+  def addString(value: String, depth: Int, num: Int): Unit = {
+    val entryHeight = 60
+
+    graph.append("text")
+      .attr("x", 10)
+      .attr("y", entryHeight / 2)
+      .attr("dy", ".35em")
+      .attr("transform", (d: js.Any, i: Double) => {
+        s"translate(${depth * 10 + 50}, ${20 + entryHeight + (num - 1) * 100} )"
+      })
+      .text(value)
+  }
+
+
+  def addNumber(value: Double, depth: Int, num: Int): Unit = {
+    val entryHeight = 60
+
+    graph.append("text")
+      .attr("x", 10)
+      .attr("y", entryHeight / 2)
+      .attr("dy", ".35em")
+      .attr("transform", (d: js.Any, i: Double) => {
+        s"translate(${depth * 10 + 50}, ${20 + entryHeight + (num - 1) * 100} )"
+      })
+      .text(value)
+  }
+
+  /*val circleRoot = graph.append("g").classed("circleRoot", true)
   val tasks: Var[Array[Var[Task]]] = Var(Array())
   val dragging = Var(false)
   val mouseDownTask: Var[Option[Task]] = Var(None)
@@ -99,7 +149,7 @@ class Graph {
       })
       mysel.exit().remove()
     }
-  }
+  }*/
 }
 
 trait GraphElement <: EventStates {

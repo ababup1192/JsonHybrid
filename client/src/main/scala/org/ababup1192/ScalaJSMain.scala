@@ -8,6 +8,10 @@ import scala.scalajs.js
 
 object ScalaJSMain extends js.JSApp {
 
+  val graph = new Graph
+  var depth = 0
+  var entryNum = 0
+
   def main(): Unit = {
     val editor = ace.edit("editor")
     editor.setTheme("ace/theme/idle_fingers")
@@ -25,21 +29,30 @@ object ScalaJSMain extends js.JSApp {
         val ast = toAST(json)
 
         // Visit from Root
+        depth = 0
+        entryNum = 0
         visit(1, ast)
       }
     })
   }
 
   def visit(id: Int, ast: Map[Int, js.Any]): Unit = {
+    if (id == 1) {
+      graph.clear()
+    }
     ast.get(id).foreach { node =>
       getKind(node) match {
         case "object" =>
+          depth += 1
           val objectNode = node.asInstanceOf[ObjectNode]
           objectNode.childrenId.foreach { id =>
+            entryNum += 1
             visit(id.toString().toInt, ast)
           }
+          entryNum = 0
         case "entry" =>
           val entryNode = node.asInstanceOf[EntryNode]
+          graph.addEntry(entryNode.key, depth, entryNum)
           entryNode.childrenId.foreach { id =>
             visit(id.toString().toInt, ast)
           }
@@ -48,11 +61,13 @@ object ScalaJSMain extends js.JSApp {
           arrayNode.childrenId.foreach { id =>
             visit(id.toString().toInt, ast)
           }
+        case "string" =>
+          val stringNode = node.asInstanceOf[StringNode]
+          graph.addString(stringNode.value, depth, entryNum)
         case "number" =>
           val numberNode = node.asInstanceOf[NumberNode]
-          println(numberNode.value)
+          graph.addNumber(numberNode.value, depth, entryNum)
         case kind =>
-          println(kind)
       }
     }
   }
