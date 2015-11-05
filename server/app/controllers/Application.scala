@@ -3,6 +3,9 @@ package controllers
 import org.ababup1192.parser.json.JsonParser
 import play.api.mvc._
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
 /*
 object AutowireServer extends autowire.Server[String, upickle.default.Reader, upickle.default.Writer] {
   def read[Result: upickle.default.Reader](p: String) = upickle.default.read[Result](p)
@@ -29,12 +32,20 @@ object Application extends Controller {
     Ok(views.html.index())
   }
 
-  def sourceCode = Action { request =>
+  def sourceCode = Action.async { request =>
     request.body.asText.map { text =>
-      parser.input(text)
-      Ok(parser.jsonAst.toString())
+      Future {
+        parser.input(text)
+        parser.jsonAst.toString()
+      }.map { ast =>
+        Ok(ast)
+      }
     }.getOrElse {
-      BadRequest("ParserError")
+      Future {
+        "ParseError"
+      }.map {
+        BadRequest(_)
+      }
     }
   }
 
