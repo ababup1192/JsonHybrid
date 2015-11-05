@@ -10,9 +10,9 @@ import scala.scalajs.js
 import scala.scalajs.js.Dynamic.{literal => lit}
 import scala.scalajs.js.JSConverters._
 
-object Graph {
+class Graph {
 
-  val svg = d3.select("body")
+  val svg = d3.select("#graph")
     .append("svg")
     .attr("id", "workflow")
     .attr("width", "500px")
@@ -100,10 +100,7 @@ object Graph {
       mysel.exit().remove()
     }
   }
-
-
 }
-
 
 trait GraphElement <: EventStates {
   def literal: js.Dynamic

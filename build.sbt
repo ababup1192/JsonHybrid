@@ -34,7 +34,7 @@ lazy val server = (project in file("server")).settings(
     "com.lihaoyi" %%% "autowire" % "0.2.5",
     "com.lihaoyi" %%% "upickle" % "0.3.6",
     "com.vmunier" %% "play-scalajs-scripts" % "0.3.0",
-    "org.ababup1192" % "hybridparser_2.11" % "0.2.3",
+    "org.ababup1192" % "hybridparser_2.11" % "0.2.5",
     specs2 % Test
   ),
   // Heroku specific
@@ -57,7 +57,8 @@ lazy val client = (project in file("client")).settings(
     "com.lihaoyi" %%% "scalarx" % "0.2.8",
     "fr.iscpif" %%% "scaladget" % "0.7.0",
     "com.scalawarrior" %%% "scalajs-ace" % "0.0.1-SNAPSHOT",
-    "org.ababup1192" % "hybridparser_2.11" % "0.2.3"
+    "org.ababup1192" % "hybridparser_2.11" % "0.2.5",
+    "io.spray" %%  "spray-json" % "1.3.2"
   )
 ).enablePlugins(ScalaJSPlugin, ScalaJSPlay).
   dependsOn(sharedJs)
@@ -65,7 +66,7 @@ lazy val client = (project in file("client")).settings(
 lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared")).
   settings(
     scalaVersion := scalaV,
-    libraryDependencies += "org.ababup1192" % "hybridparser_2.11" % "0.2.3").
+    libraryDependencies += "org.ababup1192" % "hybridparser_2.11" % "0.2.5").
   jsConfigure(_ enablePlugins ScalaJSPlay)
 
 lazy val sharedJvm = shared.jvm

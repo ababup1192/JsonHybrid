@@ -33,7 +33,6 @@ object Application extends Controller {
     request.body.asText.map { text =>
       parser.input(text)
       Ok(parser.jsonAst.toString())
-      // Ok(parser.jsonAst.toString)
     }.getOrElse {
       BadRequest("ParserError")
     }
