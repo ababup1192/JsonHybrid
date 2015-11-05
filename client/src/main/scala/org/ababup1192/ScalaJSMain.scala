@@ -41,9 +41,10 @@ object ScalaJSMain extends js.JSApp {
       }
     })
 
+
     d3.select(dom.window)
       .on("keydown", (_: js.Any, _: Double) => {
-        val DELETE_KEY = 8d
+        val DELETE_KEY = 68d
         d3.event.keyCode match {
           case DELETE_KEY =>
             graph.selected().foreach { id =>
@@ -64,6 +65,13 @@ object ScalaJSMain extends js.JSApp {
           case _ =>
         }
       })
+
+
+    d3.select("#node_value")
+      .on("mousedown", (_: js.Any, _: Double) ⇒ {
+        graph.selected() = None
+      })
+
 
     d3.select("#node_value")
       .on("keydown", (_: js.Any, _: Double) ⇒ {
