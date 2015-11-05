@@ -25,7 +25,7 @@ class Graph {
     val entry = graph.append("g")
       .classed("entry", true)
       .attr("transform", (d: js.Any, i: Double) => {
-        s"translate(${depth * 10}, ${20 + entryHeight + (num - 1) * 100} )"
+        s"translate(${(depth - 1) * 100}, ${20 + entryHeight + (num - 1) * 100} )"
       })
 
     entry.append("rect")
@@ -50,11 +50,10 @@ class Graph {
       .attr("y", entryHeight / 2)
       .attr("dy", ".35em")
       .attr("transform", (d: js.Any, i: Double) => {
-        s"translate(${depth * 10 + 50}, ${20 + entryHeight + (num - 1) * 100} )"
+        s"translate(${(depth - 1) * 100 + 50}, ${20 + entryHeight + (num - 1) * 100} )"
       })
       .text(value)
   }
-
 
   def addNumber(value: Double, depth: Int, num: Int): Unit = {
     val entryHeight = 60
@@ -64,9 +63,35 @@ class Graph {
       .attr("y", entryHeight / 2)
       .attr("dy", ".35em")
       .attr("transform", (d: js.Any, i: Double) => {
-        s"translate(${depth * 10 + 50}, ${20 + entryHeight + (num - 1) * 100} )"
+        s"translate(${(depth - 1) * 100 + 50}, ${20 + entryHeight + (num - 1) * 100} )"
       })
       .text(value)
+  }
+
+  def addBoolean(value: Boolean, depth: Int, num: Int): Unit = {
+    val entryHeight = 60
+
+    graph.append("text")
+      .attr("x", 10)
+      .attr("y", entryHeight / 2)
+      .attr("dy", ".35em")
+      .attr("transform", (d: js.Any, i: Double) => {
+        s"translate(${(depth - 1) * 100 + 50}, ${20 + entryHeight + (num - 1) * 100} )"
+      })
+      .text(value)
+  }
+
+  def addNull(depth: Int, num: Int): Unit = {
+    val entryHeight = 60
+
+    graph.append("text")
+      .attr("x", 10)
+      .attr("y", entryHeight / 2)
+      .attr("dy", ".35em")
+      .attr("transform", (d: js.Any, i: Double) => {
+        s"translate(${(depth - 1) * 100 + 50}, ${20 + entryHeight + (num - 1) * 100} )"
+      })
+      .text("null")
   }
 
   /*val circleRoot = graph.append("g").classed("circleRoot", true)

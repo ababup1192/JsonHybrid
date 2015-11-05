@@ -67,6 +67,12 @@ object ScalaJSMain extends js.JSApp {
         case "number" =>
           val numberNode = node.asInstanceOf[NumberNode]
           graph.addNumber(numberNode.value, depth, entryNum)
+        case "boolean" =>
+          val booleanNode = node.asInstanceOf[BooleanNode]
+          graph.addBoolean(booleanNode.value, depth, entryNum)
+         case "null" =>
+          val nullNode = node.asInstanceOf[NullNode]
+          graph.addNull(depth, entryNum)
         case kind =>
       }
     }
