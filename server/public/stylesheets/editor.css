@@ -1,3 +1,13 @@
-#editor {
-    height: 500px ;
+body {
+    padding: 20px;
 }
+
+#editor {
+    height: 500px;
+}
+
+#node_id, #node_value, #node_kind {
+    width: 300px;
+}
+
+

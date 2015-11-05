@@ -1,10 +1,13 @@
 package org.ababup1192
 
 import fr.iscpif.scaladget.d3._
+import org.scalajs.jquery.jQuery
 import rx._
 
 import scala.scalajs.js
 import scala.scalajs.js.Dynamic.{literal => lit}
+
+case class GraphNode(id: Int)
 
 class Graph {
   val svg = d3.select("#graph")
@@ -14,19 +17,29 @@ class Graph {
     .attr("height", "500px")
     .style("border-style", "solid")
   val graph = svg.append("g").classed("graph", true)
+  var nodes = List.empty[GraphNode]
 
   def clear(): Unit = {
     graph.selectAll("*").remove()
+    jQuery("#node_id").value("")
+    jQuery("#node_value").value("")
+    nodes = Nil
   }
 
-  def addEntry(key: String, depth: Int, num: Int): Unit = {
-    println(key, depth, num)
+  def addEntry(id: Int, key: String, depth: Int, num: Int): Unit = {
     val entryHeight = 60
     val entry = graph.append("g")
       .classed("entry", true)
       .attr("transform", (d: js.Any, i: Double) => {
         s"translate(${(depth - 1) * 100}, ${20 + entryHeight + (num - 1) * 100} )"
       })
+      .style("cursor", "pointer")
+
+    entry.on("mousedown", (_: js.Any, _: Double) => {
+      jQuery("#node_id").value(id.toString)
+      jQuery("#node_value").value(key)
+      jQuery("#node_kind").value("entry")
+    })
 
     entry.append("rect")
       .attr("width", 15 + key.length * 10)
@@ -42,46 +55,70 @@ class Graph {
       .text(key)
   }
 
-  def addString(value: String, depth: Int, num: Int): Unit = {
+  def addString(id: Int, value: String, depth: Int, num: Int): Unit = {
     val entryHeight = 60
 
-    graph.append("text")
+    val stringNode = graph.append("text")
       .attr("x", 10)
       .attr("y", entryHeight / 2)
       .attr("dy", ".35em")
       .attr("transform", (d: js.Any, i: Double) => {
         s"translate(${(depth - 1) * 100 + 50}, ${20 + entryHeight + (num - 1) * 100} )"
       })
+      .style("cursor", "pointer")
       .text(value)
+
+    stringNode.on("mousedown", (_: js.Any, _: Double) => {
+      jQuery("#node_id").value(id.toString)
+      jQuery("#node_value").value(value)
+      jQuery("#node_kind").value("string")
+    })
+
   }
 
-  def addNumber(value: Double, depth: Int, num: Int): Unit = {
+  def addNumber(id: Int, value: Double, depth: Int, num: Int): Unit = {
     val entryHeight = 60
 
-    graph.append("text")
+    val numberNode = graph.append("text")
       .attr("x", 10)
       .attr("y", entryHeight / 2)
       .attr("dy", ".35em")
       .attr("transform", (d: js.Any, i: Double) => {
         s"translate(${(depth - 1) * 100 + 50}, ${20 + entryHeight + (num - 1) * 100} )"
       })
+      .style("cursor", "pointer")
       .text(value)
+
+    numberNode.on("mousedown", (_: js.Any, _: Double) => {
+      jQuery("#node_id").value(id.toString)
+      jQuery("#node_value").value(value.toString)
+      jQuery("#node_kind").value("number")
+    })
+
   }
 
-  def addBoolean(value: Boolean, depth: Int, num: Int): Unit = {
+  def addBoolean(id: Int, value: Boolean, depth: Int, num: Int): Unit = {
     val entryHeight = 60
 
-    graph.append("text")
+    val booleanNode = graph.append("text")
       .attr("x", 10)
       .attr("y", entryHeight / 2)
       .attr("dy", ".35em")
       .attr("transform", (d: js.Any, i: Double) => {
         s"translate(${(depth - 1) * 100 + 50}, ${20 + entryHeight + (num - 1) * 100} )"
       })
+      .style("cursor", "pointer")
       .text(value)
+
+    booleanNode.on("mousedown", (_: js.Any, _: Double) => {
+      jQuery("#node_id").value(id.toString)
+      jQuery("#node_value").value(value.toString)
+      jQuery("#node_kind").value("boolean")
+    })
+
   }
 
-  def addNull(depth: Int, num: Int): Unit = {
+  def addNull(id: Int, depth: Int, num: Int): Unit = {
     val entryHeight = 60
 
     graph.append("text")
@@ -91,6 +128,7 @@ class Graph {
       .attr("transform", (d: js.Any, i: Double) => {
         s"translate(${(depth - 1) * 100 + 50}, ${20 + entryHeight + (num - 1) * 100} )"
       })
+      .style("cursor", "pointer")
       .text("null")
   }
 

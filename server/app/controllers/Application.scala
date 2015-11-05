@@ -1,6 +1,7 @@
 package controllers
 
 import org.ababup1192.parser.json.JsonParser
+import play.api.libs.json._
 import play.api.mvc._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -46,6 +47,61 @@ object Application extends Controller {
       }.map {
         BadRequest(_)
       }
+    }
+  }
+
+  case class StringValueNode(id: Int, value: String, kind: String)
+
+  case class NumberNode(id: Int, value: Double, kind: String)
+
+  case class BooleanNode(id: Int, value: Boolean, kind: String)
+
+  def operationString = Action { request =>
+    request.body.asJson.map { json =>
+
+
+      implicit val stringNodeReads: Format[StringValueNode] = Json.format[StringValueNode]
+
+      Json.fromJson(json).map {
+        case StringValueNode(id, key, "entry") =>
+          parser.controller.setKey(id, key)
+        case StringValueNode(id, value, "string") =>
+          parser.controller.setValue(id, value)
+      }
+
+      Ok(parser.jsonAst.toString())
+    }.getOrElse {
+      BadRequest("Not Json")
+    }
+  }
+
+  def operationNumber = Action { request =>
+    request.body.asJson.map { json =>
+      implicit val numberNodeReads: Format[NumberNode] = Json.format[NumberNode]
+
+      Json.fromJson(json).map {
+        case NumberNode(id, value, _) =>
+          parser.controller.setValue(id, value)
+      }
+
+      Ok(parser.jsonAst.toString())
+    }.getOrElse {
+      BadRequest("Not Json")
+    }
+  }
+
+  def operationBool = Action { request =>
+    request.body.asJson.map { json =>
+      implicit val booleanNodeReads: Format[BooleanNode] = Json.format[BooleanNode]
+
+      Json.fromJson(json).map {
+        case BooleanNode(id, value, _) =>
+          parser.controller.setValue(id, value)
+      }
+
+      Ok(parser.jsonAst.toString())
+    }.getOrElse {
+      BadRequest("Not Json")
     }
   }
 
