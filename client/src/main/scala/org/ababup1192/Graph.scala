@@ -18,6 +18,7 @@ class Graph {
     .style("border-style", "solid")
   val graph = svg.append("g").classed("graph", true)
   var nodes = List.empty[GraphNode]
+  val selected: Var[Option[Int]] = Var(None)
 
   def clear(): Unit = {
     graph.selectAll("*").remove()
@@ -39,6 +40,7 @@ class Graph {
       jQuery("#node_id").value(id.toString)
       jQuery("#node_value").value(key)
       jQuery("#node_kind").value("entry")
+      selected() = Some(id)
     })
 
     entry.append("rect")
@@ -72,6 +74,7 @@ class Graph {
       jQuery("#node_id").value(id.toString)
       jQuery("#node_value").value(value)
       jQuery("#node_kind").value("string")
+      selected() = Some(id)
     })
 
   }
@@ -93,6 +96,7 @@ class Graph {
       jQuery("#node_id").value(id.toString)
       jQuery("#node_value").value(value.toString)
       jQuery("#node_kind").value("number")
+      selected() = Some(id)
     })
 
   }
@@ -114,6 +118,7 @@ class Graph {
       jQuery("#node_id").value(id.toString)
       jQuery("#node_value").value(value.toString)
       jQuery("#node_kind").value("boolean")
+      selected() = Some(id)
     })
 
   }

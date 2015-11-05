@@ -41,6 +41,30 @@ object ScalaJSMain extends js.JSApp {
       }
     })
 
+    d3.select(dom.window)
+      .on("keydown", (_: js.Any, _: Double) => {
+        val DELETE_KEY = 8d
+        d3.event.keyCode match {
+          case DELETE_KEY =>
+            graph.selected().foreach { id =>
+              dom.ext.Ajax.delete(
+                url = s"http://localhost:9000/sourcecode/$id"
+              ).map { response =>
+                js.JSON.parse(response.responseText)
+              }.foreach { json =>
+                val ast = toAST(json)
+                isGraphChange() = true
+                // Visit from Root
+                depth = 0
+                entryNum = 0
+                visit(1, ast)
+              }
+              graph.selected() = None
+            }
+          case _ =>
+        }
+      })
+
     d3.select("#node_value")
       .on("keydown", (_: js.Any, _: Double) ⇒ {
         val RETURN_KEY = 13

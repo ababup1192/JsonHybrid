@@ -105,5 +105,11 @@ object Application extends Controller {
     }
   }
 
+  def deleteNode(id: Int) = Action {
+    parser.controller.delete(id)
+    Ok(parser.jsonAst.toString())
+  }
+
+
 
 }
