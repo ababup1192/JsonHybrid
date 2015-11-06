@@ -1,33 +1,16 @@
 package controllers
 
+import actor.ParseActor
 import org.ababup1192.parser.json.JsonParser
 import play.api.libs.json._
 import play.api.mvc._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import play.api.Play.current
 import scala.concurrent.Future
-
-/*
-object AutowireServer extends autowire.Server[String, upickle.default.Reader, upickle.default.Writer] {
-  def read[Result: upickle.default.Reader](p: String) = upickle.default.read[Result](p)
-
-  def write[Result: upickle.default.Writer](r: Result) = upickle.default.write(r)
-}
-*/
 
 object Application extends Controller {
   val parser = JsonParser()
-
-  /*
-  object ApiImpl extends shared.Api {
-    // override def textToAst(text: String): Map[Int, Node] = {
-    override def textToAst(text: String): Int = {
-      parser.input(text)
-      parser.ast
-      1
-    }
-  }*/
-
 
   def index = Action {
     Ok(views.html.index())
@@ -36,7 +19,9 @@ object Application extends Controller {
   def sourceCode = Action.async { request =>
     request.body.asText.map { text =>
       Future {
-        parser.input(text)
+        if (!text.isEmpty) {
+          parser.input(text)
+        }
         parser.jsonAst.toString()
       }.map { ast =>
         Ok(ast)
@@ -48,6 +33,10 @@ object Application extends Controller {
         BadRequest(_)
       }
     }
+  }
+
+  def wsParseJson = WebSocket.acceptWithActor[String, String] { request => out =>
+    ParseActor.props(out)
   }
 
   case class StringValueNode(id: Int, value: String, kind: String)
@@ -109,7 +98,6 @@ object Application extends Controller {
     parser.controller.delete(id)
     Ok(parser.jsonAst.toString())
   }
-
 
 
 }

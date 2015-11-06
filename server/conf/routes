@@ -3,6 +3,7 @@
 
 # Home page
 GET           /                                   controllers.Application.index
+GET           /parse/json                         controllers.Application.wsParseJson
 POST          /sourcecode                         controllers.Application.sourceCode
 POST          /sourcecode/operation/string        controllers.Application.operationString
 POST          /sourcecode/operation/number        controllers.Application.operationNumber
