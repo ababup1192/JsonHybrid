@@ -4,6 +4,17 @@ import org.ababup1192.parser._
 
 import scala.collection.mutable.ArrayBuffer
 
+// class LayoutTree extends GraphNode
+
+// class LayoutTree(n: String, c: js.Array[LayoutTree])
+//  extends GraphNode {
+// name = n
+// children = c.map(_.asInstanceOf[GraphNode])
+/* def toJson: upickle.Js.Value = {
+  upickle.default.writeJs[LayoutTree](this)
+}*/
+
+
 object Json {
   /**
     * Parse Json AST to AST (Scala case class Map)
@@ -40,4 +51,27 @@ object Json {
       case _ => None
     }
   }
+
+  def convertLayoutTree(id: Int, ast: Map[Int, Node]): Option[upickle.Js.Value] = {
+    import upickle.Js._
+    ast.get(id).map { node =>
+
+      val children = node.childrenId.flatMap { childId => convertLayoutTree(childId, ast) }
+      val tree = if (children.isEmpty) {
+        Obj(("name", Str(id.toString)))
+      } else {
+        Obj(("name", Str(id.toString)), ("children", Arr(children: _*)))
+      }
+      Some(tree)
+    }.getOrElse(None)
+  }
+
+
+  /*
+  ast.get(id).map { node =>
+    LayoutTree(node.id.toString,
+      node.childrenId.map { childId => convertLayoutTree(childId, ast, tree) }
+    )
+  }.getOrElse(tree)
+  }*/
 }

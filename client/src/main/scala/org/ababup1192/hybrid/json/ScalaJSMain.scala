@@ -2,26 +2,25 @@ package org.ababup1192.hybrid.json
 
 import com.scalawarrior.scalajs.ace._
 import fr.iscpif.scaladget.d3._
-import org.ababup1192.parser._
+import org.ababup1192._
 import org.scalajs.dom
 import org.scalajs.dom.WebSocket
 import org.scalajs.dom.raw._
 import org.scalajs.jquery.{JQueryAjaxSettings, JQueryXHR, jQuery}
 import rx._
 
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.runNow
 import scala.scalajs.js
 
 object ScalaJSMain extends js.JSApp {
 
-  val graph = new Graph
+  // val graph = new Graph
   var depth = 0
   var entryNum = 0
   val editor = ace.edit("editor")
   val isGraphChange = Var(false)
 
   def main(): Unit = {
-    graph.clear()
+    // graph.clear()
     editor.setTheme("ace/theme/idle_fingers")
     editor.getSession().setMode("ace/mode/javascript")
 
@@ -33,11 +32,50 @@ object ScalaJSMain extends js.JSApp {
 
     wsParser.onmessage = (event: MessageEvent) => {
       val json = js.JSON.parse(event.data.toString)
-      org.ababup1192.hybrid.json.Json.parse(json).foreach { ast =>
-        println(ast)
-        depth = 0
-        entryNum = 0
-        visit(1, ast)
+      for {
+        ast <- hybrid.json.Json.parse(json)
+        rootNode <- hybrid.json.Json.convertLayoutTree(1, ast)
+      } {
+        /*
+        val svg = d3.select("#graph")
+          .append("svg")
+          .attr("id", "workflow")
+          .attr("width", "100%")
+          .attr("height", "500px")
+          .style("border-style", "solid")
+        val treeLayout = d3.layout.tree()
+          .size(js.Array(400, 400))
+          .children((d: js.Any) =>
+            js.JSON.parse(upickle.json.write(upickle.json.readJs(d).apply("children")))
+          )
+          */
+
+        val treeLayout = new TreeLayout(ast)
+        println(treeLayout.rootTree.getOrElse("No Tree"))
+
+        // val rootNodeJson = js.JSON.parse(upickle.json.write(rootNode))
+        // println(js.JSON.stringify(rootNodeJson))
+
+
+        /*
+        val nodes = treeLayout.nodes(
+          literal(name = "aaaa", children = js.Array(literal(name = "bbbb"))).asInstanceOf[GraphNode])
+        // , children = js.Array(literal(name = "2"))).asInstanceOf[GraphNode])
+        val links = treeLayout.links(nodes)
+
+        val node = svg.selectAll(".node")
+          .data(nodes)
+          .enter()
+          .append("g")
+          .attr("class", "node")
+          .attr("transform", (d: GraphNode) => {
+            s"translate(${d.y + 50}, ${d.x})"
+          }
+          )
+        */
+        // depth = 0
+        // entryNum = 0
+        // visit(1, ast)
       }
     }
 
@@ -57,22 +95,23 @@ object ScalaJSMain extends js.JSApp {
         val DELETE_KEY = 68d
         d3.event.keyCode match {
           case DELETE_KEY =>
-            graph.selected().foreach { id =>
-              dom.ext.Ajax.delete(
-                url = s"http://localhost:9000/sourcecode/$id"
-              ).map { response =>
-                js.JSON.parse(response.responseText)
-              }.foreach { json =>
-                isGraphChange() = true
-                // Visit from Root
-                depth = 0
-                entryNum = 0
-                org.ababup1192.hybrid.json.Json.parse(json).foreach { ast =>
-                  visit(1, ast)
-                }
-              }
-              graph.selected() = None
-            }
+          /* graph.selected().foreach { id =>
+             dom.ext.Ajax.delete(
+               url = s"http://localhost:9000/sourcecode/$id"
+             ).map { response =>
+               js.JSON.parse(response.responseText)
+             }.foreach { json =>
+               isGraphChange() = true
+               // Visit from Root
+               depth = 0
+               entryNum = 0
+               org.ababup1192.hybrid.json.Json.parse(json).foreach { ast =>
+                 visit(1, ast)
+               }
+             }
+             graph.selected() = None
+           }
+           */
           case _ =>
         }
       })
@@ -80,7 +119,7 @@ object ScalaJSMain extends js.JSApp {
 
     d3.select("#node_value")
       .on("mousedown", (_: js.Any, _: Double) ⇒ {
-        graph.selected() = None
+        // graph.selected() = None
       })
 
 
@@ -115,7 +154,7 @@ object ScalaJSMain extends js.JSApp {
                 depth = 0
                 entryNum = 0
                 org.ababup1192.hybrid.json.Json.parse(json).foreach { ast =>
-                  visit(1, ast)
+                  // visit(1, ast)
                 }
               },
               error = { (jqXHR: JQueryXHR, textStatus: js.JSStringOps, errorThrow: js.JSStringOps) =>
@@ -130,10 +169,11 @@ object ScalaJSMain extends js.JSApp {
       })
   }
 
+  /*
   def visit(id: Int, ast: Map[Int, org.ababup1192.parser.Node]): Unit = {
-    if (id == 1) {
+    /* if (id == 1) {
       graph.clear()
-    }
+    }*/
     ast.get(id).foreach {
       case objectNode: ObjectNode =>
         depth += 1
@@ -167,6 +207,6 @@ object ScalaJSMain extends js.JSApp {
       case _ =>
     }
   }
-
+  */
 }
 

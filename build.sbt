@@ -57,8 +57,7 @@ lazy val client = (project in file("client")).settings(
     "com.lihaoyi" %%% "scalarx" % "0.2.8",
     "fr.iscpif" %%% "scaladget" % "0.7.0",
     "com.scalawarrior" %%% "scalajs-ace" % "0.0.1-SNAPSHOT",
-    "org.ababup1192" % "hybridparser_2.11" % "0.2.5",
-    "io.spray" %%  "spray-json" % "1.3.2"
+    "org.ababup1192" % "hybridparser_2.11" % "0.2.5"
   )
 ).enablePlugins(ScalaJSPlugin, ScalaJSPlay).
   dependsOn(sharedJs)

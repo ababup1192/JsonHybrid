@@ -8,7 +8,7 @@ import rx._
 import scala.scalajs.js
 import scala.scalajs.js.Dynamic.{literal => lit}
 
-case class GraphNode(id: Int)
+// case class GraphNode(id: Int)
 
 class Graph {
   val svg = d3.select("#graph")
@@ -18,14 +18,14 @@ class Graph {
     .attr("height", "500px")
     .style("border-style", "solid")
   val graph = svg.append("g").classed("graph", true)
-  var nodes = List.empty[GraphNode]
+  // var nodes = List.empty[GraphNode]
   val selected: Var[Option[Int]] = Var(None)
 
   def clear(): Unit = {
     graph.selectAll("*").remove()
     jQuery("#node_id").value("")
     jQuery("#node_value").value("")
-    nodes = Nil
+   // nodes = Nil
   }
 
   def addEntry(nodeInfo: EntryNode, depth: Int, num: Int): Unit = {
