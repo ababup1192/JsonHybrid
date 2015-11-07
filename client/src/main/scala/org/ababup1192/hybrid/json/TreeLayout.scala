@@ -19,7 +19,6 @@ class TreeLayout(val ast: Map[Int, Node]) {
       }.getOrElse(list)
     }.reverse
 
-
     var thread = None
     var ancestor = this
     var change = 0
