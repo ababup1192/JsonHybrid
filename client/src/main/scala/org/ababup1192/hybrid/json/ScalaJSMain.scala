@@ -24,7 +24,7 @@ object ScalaJSMain extends js.JSApp {
     editor.setTheme("ace/theme/idle_fingers")
     editor.getSession().setMode("ace/mode/javascript")
 
-    val wsParser = new WebSocket(s"ws://${dom.document.location.host}/parse/json")
+    val wsParser = new WebSocket(getWebsocketUri)
 
     wsParser.onopen = (event: Event) => {
       wsParser.send(editor.getValue())
@@ -211,5 +211,13 @@ object ScalaJSMain extends js.JSApp {
     }
   }
   */
+
+  def getWebsocketUri: String = {
+    val wsProtocol = if (dom.document.location.protocol == "https:") "wss" else "ws"
+
+    s"$wsProtocol://${dom.document.location.host}/parse/json"
+  }
+
 }
+
 
