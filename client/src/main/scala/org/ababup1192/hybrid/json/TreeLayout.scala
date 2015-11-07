@@ -1,25 +1,53 @@
 package org.ababup1192.hybrid.json
 
-import org.ababup1192.parser.Node
+import org.ababup1192.parser.{EntryNode, Node, ObjectNode}
 
 import scala.annotation.tailrec
 
+trait DrawTree {
+  val id: Int
+  val value: Node
+  var x: Double
+  var y: Double
+  val depth: Int
+  val number: Int
+  var thread: Option[DrawTree]
+  var change: Double
+  var shift: Double
+  var mod: Double
+  var ancestor: DrawTree
+
+  def parent: Option[DrawTree]
+
+  def children: List[DrawTree]
+
+  def left(): Option[DrawTree]
+
+  def right(): Option[DrawTree]
+
+  def leftBrother: Option[DrawTree]
+
+  def lMostSibling: Option[DrawTree]
+}
+
 class TreeLayout(val ast: Map[Int, Node]) {
 
-  case class DrawTree(value: Node, tree: Option[DrawTree] = None, parent: Option[DrawTree] = None, var depth: Int = 0, var number: Int = 1) {
+  case class DrawTreeImpl(value: Node, parent: Option[DrawTree] = None,
+                          depth: Int = 0, number: Int = 1, var ancestor: DrawTree = null) extends DrawTree {
+    self: DrawTree =>
     val id = value.id
     var x = -1d
-    var y = depth
+    var y = depth.toDouble
+    ancestor = self
 
     lazy val children = value.childrenId.zipWithIndex.foldLeft(List.empty[DrawTree]) { (list, idWithIndex) =>
       val (id, index) = idWithIndex
       ast.get(id).map { child =>
-        DrawTree(child, Some(this), Some(this), depth + 1, index + 1) :: list
+        DrawTreeImpl(child, Some(this), depth + 1, index + 1) :: list
       }.getOrElse(list)
     }.reverse
 
     var thread: Option[DrawTree] = None
-    var ancestor = this
     var change = 0d
     var shift = 0d
     var mod = 0d
@@ -58,7 +86,7 @@ class TreeLayout(val ast: Map[Int, Node]) {
 
   val rootTree: Option[DrawTree] = {
     ast.get(1).map { root =>
-      Some(DrawTree(root))
+      Some(DrawTreeImpl(root))
     }.getOrElse(None)
   }
 
@@ -72,8 +100,16 @@ class TreeLayout(val ast: Map[Int, Node]) {
           thirdWalk(dt, -minInst)
         }
       }
+      normalize(tree, distance)
       Some(dt)
     }.getOrElse(None)
+  }
+
+  def normalize(v: DrawTree, distance: Double): Unit = {
+    v.y *= distance.toDouble
+    v.children.foreach { child =>
+      normalize(child, distance)
+    }
   }
 
   def firstWalk(v: DrawTree, distance: Double): DrawTree = {

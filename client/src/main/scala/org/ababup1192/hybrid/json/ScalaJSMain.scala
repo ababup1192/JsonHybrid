@@ -3,6 +3,7 @@ package org.ababup1192.hybrid.json
 import com.scalawarrior.scalajs.ace._
 import fr.iscpif.scaladget.d3._
 import org.ababup1192._
+import org.ababup1192.parser._
 import org.scalajs.dom
 import org.scalajs.dom.WebSocket
 import org.scalajs.dom.raw._
@@ -20,7 +21,20 @@ object ScalaJSMain extends js.JSApp {
   val isGraphChange = Var(false)
 
   def main(): Unit = {
-    // graph.clear()
+
+    val svg = d3.select("#graph")
+      .append("svg")
+      .attr("id", "workflow")
+      .attr("width", "100%")
+      .attr("height", "500px")
+      .style("border-style", "solid")
+
+    val graph =
+      svg
+        .append("g")
+        .classed("graph", true)
+        .attr("transform", "translate(30, 100)")
+
     editor.setTheme("ace/theme/idle_fingers")
     editor.getSession().setMode("ace/mode/javascript")
 
@@ -52,10 +66,45 @@ object ScalaJSMain extends js.JSApp {
 
         val treeLayout = new TreeLayout(ast)
 
-        treeLayout.rootTree.foreach { tree =>
-          val dt = treeLayout.buchheim(30d)
+        treeLayout.buchheim(60d).foreach { drawTree =>
 
-          jQuery("#graph").text(dt.toString)
+          graph.selectAll("*").remove()
+
+          def visit(tree: DrawTree): Unit = {
+            val node = graph
+              .append("g")
+              .attr("transform", s"translate(${tree.y}, ${tree.x})")
+
+            tree.value match {
+              case objectNode: ObjectNode =>
+                node.append("circle")
+                  .attr("r", 5)
+                  .attr("fill", "darkgray")
+
+                val diagonal = d3.svg.diagonal
+                
+              case entryNode: EntryNode =>
+                node.append("circle")
+                  .attr("r", 5)
+                  .attr("fill", "lightsteelblue")
+                node.append("text")
+                  .text(entryNode.key)
+              case _ =>
+                node.append("circle")
+                  .attr("r", 5)
+                  .attr("fill", "lightsteelblue")
+                node.append("text")
+                  .text(tree.value.code)
+            }
+
+            tree.children.foreach { child =>
+              visit(child)
+            }
+          }
+
+          visit(drawTree)
+
+          //jQuery("#graph").text(drawTree.toString)
         }
 
         // val rootNodeJson = js.JSON.parse(upickle.json.write(rootNode))
@@ -217,7 +266,9 @@ object ScalaJSMain extends js.JSApp {
   def getWebsocketUri: String = {
     val wsProtocol = if (dom.document.location.protocol == "https:") "wss" else "ws"
 
-    s"$wsProtocol://${dom.document.location.host}/parse/json"
+    s"$wsProtocol://${
+      dom.document.location.host
+    }/parse/json"
   }
 
 }
