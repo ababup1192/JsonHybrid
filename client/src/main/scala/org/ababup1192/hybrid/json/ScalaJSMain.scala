@@ -53,7 +53,9 @@ object ScalaJSMain extends js.JSApp {
         val treeLayout = new TreeLayout(ast)
 
         treeLayout.rootTree.foreach { tree =>
-          jQuery("#graph").text(tree.toString)
+          val dt = treeLayout.buchheim(30d)
+
+          jQuery("#graph").text(dt.toString)
         }
 
         // val rootNodeJson = js.JSON.parse(upickle.json.write(rootNode))
