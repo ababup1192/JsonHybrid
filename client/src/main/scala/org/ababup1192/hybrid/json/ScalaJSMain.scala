@@ -11,6 +11,7 @@ import org.scalajs.jquery.{JQueryAjaxSettings, JQueryXHR, jQuery}
 import rx._
 
 import scala.scalajs.js
+import scala.scalajs.js.Dynamic.literal
 
 object ScalaJSMain extends js.JSApp {
 
@@ -70,9 +71,15 @@ object ScalaJSMain extends js.JSApp {
 
           graph.selectAll("*").remove()
 
+          val lineFunc = js.Dynamic.global.d3.svg.line()
+            .x((d: js.Dynamic) => d.x)
+            .y((d: js.Dynamic) => d.y)
+            .interpolate("basis-open")
+
+
           def visit(tree: DrawTree): Unit = {
             val node = graph
-              .append("g")
+              .append("g").classed("node", true)
               .attr("transform", s"translate(${tree.y}, ${tree.x})")
 
             tree.value match {
@@ -81,14 +88,40 @@ object ScalaJSMain extends js.JSApp {
                   .attr("r", 5)
                   .attr("fill", "darkgray")
 
-                val diagonal = d3.svg.diagonal
-                
+                tree.children.foreach { child =>
+                  val lines: js.Array[js.Any] = js.Array(
+                    literal(x = tree.y, y = tree.x),
+                    literal(x = child.y, y = child.x))
+
+                  graph
+                    .append("path")
+                    .classed("link", true)
+                    .attr("fill", "none")
+                    .attr("stroke", "black")
+                    .attr("d", lineFunc(lines))
+                  // .attr("d", s"M ${tree.y} ${tree.x} L ${child.y} ${child.x}")
+                }
+
               case entryNode: EntryNode =>
                 node.append("circle")
                   .attr("r", 5)
                   .attr("fill", "lightsteelblue")
                 node.append("text")
                   .text(entryNode.key)
+
+                tree.children.foreach { child =>
+                  val lines: js.Array[js.Any] = js.Array(
+                    literal(x = tree.y, y = tree.x),
+                    literal(x = child.y, y = child.x))
+
+                  graph
+                    .append("path")
+                    .classed("link", true)
+                    .attr("fill", "none")
+                    .attr("stroke", "black")
+                    .attr("d", lineFunc(lines))
+                  // .attr("d", s"M ${tree.y} ${tree.x}  L ${child.y} ${child.x}")
+                }
               case _ =>
                 node.append("circle")
                   .attr("r", 5)

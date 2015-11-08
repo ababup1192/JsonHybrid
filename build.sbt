@@ -55,7 +55,7 @@ lazy val client = (project in file("client")).settings(
     "org.scala-js" %%% "scalajs-dom" % "0.8.0",
     "be.doeraene" %%% "scalajs-jquery" % "0.8.1",
     "com.lihaoyi" %%% "scalarx" % "0.2.8",
-    "fr.iscpif" %%% "scaladget" % "0.7.0",
+    "fr.iscpif" %%% "scaladget" % "0.8.5-SNAPSHOT",
     "com.scalawarrior" %%% "scalajs-ace" % "0.0.1-SNAPSHOT",
     "org.ababup1192" % "hybridparser_2.11" % "0.2.5"
   )
