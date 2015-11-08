@@ -1,6 +1,6 @@
 package org.ababup1192.hybrid.json
 
-import org.ababup1192.parser.{EntryNode, Node, ObjectNode}
+import org.ababup1192.parser.Node
 
 import scala.annotation.tailrec
 
@@ -166,10 +166,11 @@ class TreeLayout(val ast: Map[Int, Node]) {
               val shift = (vil.x + sil) - (vir.x + sir) + distance
               if (shift > 0) {
                 moveSubtree(ancestor(vil, v, defaultAncestor), v, shift)
+                sir += shift
+                sor += shift
               }
-              sir += shift
-              sor += shift
               sil += vil.mod
+              sir += vir.mod
               sol += vol.map(_.mod).getOrElse(0d)
               sor += vor.mod
               loop()
@@ -229,7 +230,7 @@ class TreeLayout(val ast: Map[Int, Node]) {
 
   def secondWalk(v: DrawTree, m: Double = 0d, depth: Int = 0, min: Option[Double] = None): Option[Double] = {
     v.x += m
-    v.y = depth
+    v.y = depth.toDouble
 
     val newMin = min match {
       case Some(minInst) =>
