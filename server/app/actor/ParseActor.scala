@@ -2,6 +2,7 @@ package actor
 
 import akka.actor.{Actor, ActorRef, Props}
 import org.ababup1192.parser.json.JsonParser
+import play.api.libs.json._
 
 object ParseActor {
   def props(out: ActorRef) = Props(new ParseActor(out))
@@ -14,8 +15,9 @@ class ParseActor(out: ActorRef) extends Actor {
     case jsonText: String =>
       if (!jsonText.isEmpty) {
         parser.input(jsonText)
-        out ! parser.jsonAst.toString()
+        parser.drawingAst.foreach { ast =>
+          out ! ast.toJson.toString()
+        }
       }
-
   }
 }

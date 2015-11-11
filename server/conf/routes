@@ -4,11 +4,6 @@
 # Home page
 GET           /                                   controllers.Application.index
 GET           /parse/json                         controllers.Application.wsParseJson
-POST          /sourcecode                         controllers.Application.sourceCode
-POST          /sourcecode/operation/string        controllers.Application.operationString
-POST          /sourcecode/operation/number        controllers.Application.operationNumber
-POST          /sourcecode/operation/bool          controllers.Application.operationBool
-DELETE        /sourcecode/:id                     controllers.Application.deleteNode(id:Int)
 
 # Map static resources from the /public folder to the /assets URL path
 GET           /assets/*file                       controllers.Assets.at(path="/public", file)

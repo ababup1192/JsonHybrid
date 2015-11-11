@@ -27,14 +27,17 @@ lazy val server = (project in file("server")).settings(
   scalaVersion := scalaV,
   scalaJSProjects := clients,
   pipelineStages := Seq(scalaJSProd, gzip),
-  resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",
+  resolvers ++= Seq(
+    "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",
+    "jitpack" at "https://jitpack.io"
+  ),
   resolvers += sbt.Resolver.bintrayRepo("denigma", "denigma-releases"),
   libraryDependencies ++= Seq(
     ws,
     "com.lihaoyi" %%% "autowire" % "0.2.5",
     "com.lihaoyi" %%% "upickle" % "0.3.6",
     "com.vmunier" %% "play-scalajs-scripts" % "0.3.0",
-    "org.ababup1192" % "hybridparser_2.11" % "0.2.5",
+    "org.ababup1192" % "hybridparser_2.11" % "0.2.7",
     specs2 % Test
   ),
   // Heroku specific
@@ -48,7 +51,10 @@ lazy val client = (project in file("client")).settings(
   scalaVersion := scalaV,
   persistLauncher := true,
   persistLauncher in Test := false,
-  resolvers += "amateras-repo" at "http://amateras.sourceforge.jp/mvn-snapshot/",
+  resolvers ++= Seq(
+    "amateras-repo" at "http://amateras.sourceforge.jp/mvn-snapshot/",
+    "jitpack" at "https://jitpack.io"
+  ),
   libraryDependencies ++= Seq(
     "com.lihaoyi" %%% "autowire" % "0.2.5",
     "com.lihaoyi" %%% "upickle" % "0.3.6",
@@ -57,7 +63,7 @@ lazy val client = (project in file("client")).settings(
     "com.lihaoyi" %%% "scalarx" % "0.2.8",
     "fr.iscpif" %%% "scaladget" % "0.8.5-SNAPSHOT",
     "com.scalawarrior" %%% "scalajs-ace" % "0.0.1-SNAPSHOT",
-    "org.ababup1192" % "hybridparser_2.11" % "0.2.5"
+    "org.ababup1192" % "hybridparser_2.11" % "0.2.7"
   )
 ).enablePlugins(ScalaJSPlugin, ScalaJSPlay).
   dependsOn(sharedJs)
