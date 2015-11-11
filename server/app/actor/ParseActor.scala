@@ -16,7 +16,7 @@ class ParseActor(out: ActorRef) extends Actor {
       if (!jsonText.isEmpty) {
         parser.input(jsonText)
         parser.drawingAst.foreach { ast =>
-          out ! ast.toJson.toString()
+          out ! upickle.json.write(ast.toJson)
         }
       }
   }
