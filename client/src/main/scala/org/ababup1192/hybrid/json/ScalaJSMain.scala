@@ -1,10 +1,11 @@
 package org.ababup1192.hybrid.json
 
 import com.scalawarrior.scalajs.ace._
+import japgolly.scalajs.react.ReactDOM
 import org.ababup1192.parser.drawing.JsonVisitor
 import org.scalajs.dom
-import org.scalajs.dom.WebSocket
 import org.scalajs.dom.raw._
+import org.scalajs.dom.{WebSocket, document}
 import rx._
 
 import scala.scalajs.js
@@ -26,9 +27,8 @@ object ScalaJSMain extends js.JSApp {
 
     wsParser.onmessage = (event: MessageEvent) => {
       val rootNodeJson = upickle.json.readJs(js.JSON.parse(event.data.toString))
-
-      JsonVisitor.parse(rootNodeJson).foreach {
-        println
+      JsonVisitor.parse(rootNodeJson).foreach { node =>
+        ReactDOM.render(JsonTree.jsonTree(node), document.getElementById("graph"))
       }
     }
 
