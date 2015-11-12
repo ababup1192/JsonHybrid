@@ -37,7 +37,7 @@ lazy val server = (project in file("server")).settings(
     "com.lihaoyi" %%% "autowire" % "0.2.5",
     "com.lihaoyi" %%% "upickle" % "0.3.6",
     "com.vmunier" %% "play-scalajs-scripts" % "0.3.0",
-    "org.ababup1192" %%% "hybridparser" % "0.3.3",
+    "org.ababup1192" % "hybridparser_sjs0.6_2.11" % "0.3.7",
     specs2 % Test
   ),
   // Heroku specific
@@ -63,7 +63,15 @@ lazy val client = (project in file("client")).settings(
     "com.lihaoyi" %%% "scalarx" % "0.2.8",
     "fr.iscpif" %%% "scaladget" % "0.8.5-SNAPSHOT",
     "com.scalawarrior" %%% "scalajs-ace" % "0.0.1-SNAPSHOT",
-    "org.ababup1192" %%% "hybridparser" % "0.3.4"
+    "org.ababup1192" % "hybridparser_sjs0.6_2.11" % "0.3.7",
+    "eu.unicredit" %%% "paths-scala-js" % "0.3.2",
+    "com.github.japgolly.scalajs-react" %%% "core" % "0.10.1",
+    "com.github.japgolly.scalajs-react" %%% "extra" % "0.10.1"
+  ),
+  jsDependencies ++= Seq(
+    "org.webjars" % "paths-js" % "0.3.2" / "paths.js",
+    "org.webjars.npm" % "react" % "0.14.2" / "react-with-addons.js" commonJSName "React" minified "react-with-addons.min.js",
+    "org.webjars.npm" % "react-dom" % "0.14.2" / "react-dom.js" commonJSName "ReactDOM" minified "react-dom.min.js" dependsOn "react-with-addons.js"
   )
 ).enablePlugins(ScalaJSPlugin, ScalaJSPlay).
   dependsOn(sharedJs)
