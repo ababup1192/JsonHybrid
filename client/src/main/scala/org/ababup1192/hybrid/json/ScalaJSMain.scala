@@ -28,7 +28,7 @@ object ScalaJSMain extends js.JSApp {
     wsParser.onmessage = (event: MessageEvent) => {
       val rootNodeJson = upickle.json.readJs(js.JSON.parse(event.data.toString))
       JsonVisitor.parse(rootNodeJson).foreach { node =>
-        ReactDOM.render(JsonTree.jsonTree(node), document.getElementById("graph"))
+        ReactDOM.render(JsonTree.jsonTree(node), document.getElementById("canvas"))
       }
     }
 
