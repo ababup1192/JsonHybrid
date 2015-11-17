@@ -11,6 +11,9 @@ import scala.scalajs.js
 
 object JsonTree {
 
+  case class Props(content: TagMod, treeNode: TreeNode[Node]){
+    def getNode = treeNode.item
+  }
 
   private def move(p: js.Array[Double]) = s"translate(${p(0)},${p(1)})"
 
@@ -19,23 +22,23 @@ object JsonTree {
       <.path(^.d := curve.connector.path.print)
     ).build
 
-  private class NodeBackend($: BackendScope[(TagMod, TreeNode[Node]), Unit]) extends OnUnmount {
+  private class NodeBackend($: BackendScope[Props, Unit]) extends OnUnmount {
 
     def nodeEnter(e: MouseEvent): Callback = Callback(println("Node enter"))
 
-    def nodeClick(e: MouseEvent): Callback = Callback(println("Node Click", $.props.runNow()._2.item))
+    def nodeClick(e: MouseEvent): Callback = Callback(println("Node Click", $.props.runNow().getNode))
 
-    def render(P: (TagMod, TreeNode[Node])) = {
+    def render(P: Props) = {
       def isLeaf(node: Node) = node.children.isEmpty
 
       P match {
-        case (content: TagMod, node: TreeNode[Node]) =>
+        case props@Props(content, treeNode) =>
 
-          <.g(^.transform := move(node.point),
+          <.g(^.transform := move(treeNode.point),
             <.circle(^.r := 5, ^.cx := 0, ^.cy := 0),
             <.text(
-              ^.transform := (if (isLeaf(node.item)) "translate(10,0)" else "translate(-10,0)"),
-              ^.textAnchor := (if (isLeaf(node.item)) "start" else "end"),
+              ^.transform := (if (isLeaf(props.getNode)) "translate(10,0)" else "translate(-10,0)"),
+              ^.textAnchor := (if (isLeaf(props.getNode)) "start" else "end"),
               content
             )
           )
@@ -43,7 +46,7 @@ object JsonTree {
     }
   }
 
-  private val Node = ReactComponentB[(TagMod, TreeNode[Node])]("Node")
+  private val Node = ReactComponentB[Props]("Node")
     .renderBackend[NodeBackend]
     .configure(
       EventListener[MouseEvent].install("click", _.backend.nodeClick),
@@ -57,19 +60,19 @@ object JsonTree {
       val nodes = treeNode.nodes.map(node =>
         node.item match {
           case objectNode: ObjectNode =>
-            Node.withKey(objectNode.id)((EmptyTag, node))
+            Node.withKey(objectNode.id)(Props(EmptyTag, node))
           case entryNode: EntryNode =>
-            Node.withKey(entryNode.id)((entryNode.key, node))
+            Node.withKey(entryNode.id)(Props(entryNode.key, node))
           case arrayNode: ArrayNode =>
-            Node.withKey(arrayNode.id)((arrayNode.kind, node))
+            Node.withKey(arrayNode.id)(Props(arrayNode.kind, node))
           case stringNode: StringNode =>
-            Node.withKey(stringNode.id)((stringNode.value, node))
+            Node.withKey(stringNode.id)(Props(stringNode.value, node))
           case numberNode: NumberNode =>
-            Node.withKey(numberNode.id)((numberNode.value, node))
+            Node.withKey(numberNode.id)(Props(numberNode.value, node))
           case booleanNode: BooleanNode =>
-            Node.withKey(booleanNode.id)((booleanNode.value.toString, node))
+            Node.withKey(booleanNode.id)(Props(booleanNode.value.toString, node))
           case nullNode: NullNode =>
-            Node.withKey(nullNode.id)(("null", node))
+            Node.withKey(nullNode.id)(Props("null", node))
         }
       )
       <.g(vdom.prefix_<^.^.className := "nodes", nodes)
