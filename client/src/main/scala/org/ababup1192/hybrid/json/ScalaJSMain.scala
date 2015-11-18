@@ -2,6 +2,7 @@ package org.ababup1192.hybrid.json
 
 import com.scalawarrior.scalajs.ace._
 import japgolly.scalajs.react.ReactDOM
+import org.ababup1192.hybrid.json.JsonTree.{TreeProps, State}
 import org.ababup1192.parser.drawing.JsonVisitor
 import org.scalajs.dom
 import org.scalajs.dom.raw._
@@ -16,7 +17,8 @@ object ScalaJSMain extends js.JSApp {
 
   def main(): Unit = {
 
-    editor.setTheme("ace/theme/idle_fingers")
+    // editor.setTheme("ace/theme/idle_fingers")
+    editor.setTheme("ace/theme/clouds")
     editor.getSession().setMode("ace/mode/javascript")
 
     val wsParser = new WebSocket(getWebSocketUri)
@@ -28,7 +30,7 @@ object ScalaJSMain extends js.JSApp {
     wsParser.onmessage = (event: MessageEvent) => {
       val rootNodeJson = upickle.json.readJs(js.JSON.parse(event.data.toString))
       JsonVisitor.parse(rootNodeJson).foreach { node =>
-        ReactDOM.render(JsonTree.jsonTree(node), document.getElementById("canvas"))
+        ReactDOM.render(JsonTree(node), document.getElementById("canvas"))
       }
     }
 
