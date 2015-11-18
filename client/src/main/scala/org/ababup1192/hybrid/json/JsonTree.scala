@@ -1,10 +1,12 @@
 package org.ababup1192.hybrid.json
 
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.extra.{EventListener, Listenable, OnUnmount}
+import japgolly.scalajs.react.extra._
+import japgolly.scalajs.react.vdom.prefix_<^.{^ => ^^}
 import japgolly.scalajs.react.vdom.svg.prefix_<^._
 import org.ababup1192.parser.drawing._
 import org.scalajs.dom.MouseEvent
+import org.scalajs.dom.raw.SVGCircleElement
 import paths.high.{Tree, TreeCurve, TreeNode}
 
 import scala.scalajs.js
@@ -30,21 +32,21 @@ object JsonTree {
 
   private class NodeBackend($: BackendScope[NodeProps, Unit]) extends OnUnmount {
 
-    def nodeEnter(e: MouseEvent): Callback =
-      Callback(println("Node enter"))
+    case class Callbacks(P: NodeProps) {
+      val handleNodeMouseDown: ReactMouseEvent => Callback =
+        e => P.treeProps.model.selected(P.node.item)
 
-    def nodeClick(e: MouseEvent): Callback = CallbackTo {
-      val node = $.props.runNow().node.item
-      val currentNode = $.props.runNow().treeProps.state.selected
-      println(currentNode)
-
-      $.props.runNow.treeProps.model.selected(node).runNow()
+      val handleNodeEnter: ReactMouseEvent => Callback =
+        e => Callback(println(P.treeProps.state))
     }
-
 
     def render(props: NodeProps) = {
 
       def isLeaf(node: Node) = node.children.isEmpty
+
+      implicit val r = Reusability.fn[NodeProps]((p1, p2) => p1 == p2)
+      val cbs = Px.cbM($.props).map(Callbacks)
+      val callbacks = cbs.value()
 
       def getContent(node: Node): TagMod = {
         node match {
@@ -68,7 +70,10 @@ object JsonTree {
       props match {
         case NodeProps(treeProps, treeNode) =>
 
-          <.g(^.transform := move(treeNode.point),
+          <.g(
+            ^.transform := move(treeNode.point),
+            ^^.onMouseDown ==> callbacks.handleNodeMouseDown,
+            ^^.onMouseEnter ==> callbacks.handleNodeEnter,
             <.circle(^.r := 5, ^.cx := 0, ^.cy := 0),
             <.text(
               ^.transform := (if (isLeaf(props.getNode)) "translate(10,0)" else "translate(-10,0)"),
@@ -82,10 +87,6 @@ object JsonTree {
 
   private val Node = ReactComponentB[NodeProps]("Node")
     .renderBackend[NodeBackend]
-    .configure(
-      EventListener[MouseEvent].install("click", _.backend.nodeClick),
-      EventListener[MouseEvent].install("mouseenter", _.backend.nodeEnter)
-    )
     .build
 
   private val Nodes = ReactComponentB[NodesProps]("Tree Nodes")
@@ -99,7 +100,16 @@ object JsonTree {
 
   class JsonTreeBackEnd($: BackendScope[TreeProps, State]) extends OnUnmount {
 
-    def canvasClick(e: MouseEvent): Callback = Callback($.state.runNow())
+    case class Callbacks(P: TreeProps) {
+      val handleCanvasMouseDown: ReactMouseEvent => Option[Callback] =
+        e =>
+          e.target match{
+            case _: SVGCircleElement =>
+              None
+            case _ =>
+              Some(P.model.unselected())
+          }
+    }
 
     def render(props: TreeProps, state: State) = {
       val tree = Tree[Node](
@@ -114,6 +124,10 @@ object JsonTree {
         height = 400
       )
 
+      implicit val r = Reusability.fn[TreeProps]((p1, p2) => p1 == p2)
+      val cbs = Px.cbM($.props).map(Callbacks)
+      val callbacks = cbs.value()
+
       val Branches =
         <.g(vdom.prefix_<^.^.className := "paths",
           tree.curves map { curve =>
@@ -122,6 +136,7 @@ object JsonTree {
         )
 
       <.svg(^.width := 550, ^.height := 550,
+        ^^.onMouseDown ==>? callbacks.handleCanvasMouseDown,
         <.g(vdom.prefix_<^.^.className := "jsonTree", ^.transform := "translate(10,20)",
           Branches,
           Nodes(NodesProps(props.copy(state = state), tree))
@@ -134,7 +149,6 @@ object JsonTree {
     .initialState(State(None))
     .renderBackend[JsonTreeBackEnd]
     .configure(
-      EventListener[MouseEvent].install("click", _.backend.canvasClick),
       Listenable.install(
         (p: TreeProps) => p.model,
         $ => (selected: Option[Node]) => $.modState(_.copy(selected = selected)))
