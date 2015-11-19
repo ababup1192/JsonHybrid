@@ -155,7 +155,7 @@ object JsonTree {
     .build
 
 
-  def apply(rootNode: Node) = {
-    JsonTree.jsonTree(TreeProps(rootNode, new JsonTreeModel, State(None)))
+  def apply(rootNode: Node, treeModel: JsonTreeModel) = {
+    JsonTree.jsonTree(TreeProps(rootNode, treeModel, State(None)))
   }
 }
