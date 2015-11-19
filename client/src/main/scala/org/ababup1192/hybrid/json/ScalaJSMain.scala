@@ -2,7 +2,6 @@ package org.ababup1192.hybrid.json
 
 import com.scalawarrior.scalajs.ace._
 import japgolly.scalajs.react.ReactDOM
-import org.ababup1192.hybrid.json.JsonTree.{TreeProps, State}
 import org.ababup1192.parser.drawing.JsonVisitor
 import org.scalajs.dom
 import org.scalajs.dom.raw._
