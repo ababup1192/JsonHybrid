@@ -5,7 +5,14 @@
 .nodes circle {
     stroke: #003366;
     fill: #dddddd;
+    cursor: pointer;
 }
+
+.nodes circle.selected {
+    stroke: #003366;
+    fill: #dd00dd;
+}
+
 .paths path {
     stroke: #336699;
     fill: none;

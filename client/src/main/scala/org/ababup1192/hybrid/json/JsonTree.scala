@@ -5,7 +5,6 @@ import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.vdom.prefix_<^.{^ => ^^}
 import japgolly.scalajs.react.vdom.svg.prefix_<^._
 import org.ababup1192.parser.drawing._
-import org.scalajs.dom.MouseEvent
 import org.scalajs.dom.raw.SVGCircleElement
 import paths.high.{Tree, TreeCurve, TreeNode}
 
@@ -35,13 +34,9 @@ object JsonTree {
     case class Callbacks(P: NodeProps) {
       val handleNodeMouseDown: ReactMouseEvent => Callback =
         e => P.treeProps.model.selected(P.node.item)
-
-      val handleNodeEnter: ReactMouseEvent => Callback =
-        e => Callback(println(P.treeProps.state))
     }
 
     def render(props: NodeProps) = {
-
       def isLeaf(node: Node) = node.children.isEmpty
 
       implicit val r = Reusability.fn[NodeProps]((p1, p2) => p1 == p2)
@@ -67,14 +62,18 @@ object JsonTree {
         }
       }
 
+      val state = props.treeProps.state
+
+      val circle = state.selected.filter(_.id == props.getNode.id)
+        .map(_ => <.circle(^^.className := "selected", ^.r := 5, ^.cx := 0, ^.cy := 0))
+        .getOrElse(<.circle(^.r := 5, ^.cx := 0, ^.cy := 0))
+
       props match {
         case NodeProps(treeProps, treeNode) =>
-
           <.g(
             ^.transform := move(treeNode.point),
             ^^.onMouseDown ==> callbacks.handleNodeMouseDown,
-            ^^.onMouseEnter ==> callbacks.handleNodeEnter,
-            <.circle(^.r := 5, ^.cx := 0, ^.cy := 0),
+            circle,
             <.text(
               ^.transform := (if (isLeaf(props.getNode)) "translate(10,0)" else "translate(-10,0)"),
               ^.textAnchor := (if (isLeaf(props.getNode)) "start" else "end"),
@@ -103,7 +102,7 @@ object JsonTree {
     case class Callbacks(P: TreeProps) {
       val handleCanvasMouseDown: ReactMouseEvent => Option[Callback] =
         e =>
-          e.target match{
+          e.target match {
             case _: SVGCircleElement =>
               None
             case _ =>
