@@ -6,11 +6,14 @@ import org.ababup1192.parser.drawing.JsonVisitor
 import org.scalajs.dom
 import org.scalajs.dom.raw._
 import org.scalajs.dom.{WebSocket, document}
+import rx.core.Var
 
 import scala.scalajs.js
+import scala.scalajs.js.Dynamic.literal
 
 object ScalaJSMain extends js.JSApp {
   val editor = ace.edit("editor")
+  val isGraphChange = Var(true)
 
   def main(): Unit = {
 
@@ -22,14 +25,27 @@ object ScalaJSMain extends js.JSApp {
     val wsParser = new WebSocket(getWebSocketUri)
 
     wsParser.onopen = (event: Event) => {
-      wsParser.send(editor.getValue())
+      val text = editor.getValue()
+      val json = literal(operation = "input", text = text)
+      wsParser.send(js.JSON.stringify(json))
     }
 
     wsParser.onmessage = (event: MessageEvent) => {
+      println(isGraphChange())
       val rootNodeJson = upickle.json.readJs(js.JSON.parse(event.data.toString))
       JsonVisitor.parse(rootNodeJson).foreach { node =>
-        ReactDOM.render(JsonTree(node, treeModel), document.getElementById("canvas"))
+        if(isGraphChange()){
+          editor.setValue(node.code)
+          ReactDOM.render(JsonTree(node, treeModel), document.getElementById("canvas"))
+          isGraphChange() = false
+        }
       }
+      // Delete function
+      /*
+      isGraphChange() = true
+      val del = literal(operation = "delete", id = 10)
+      wsParser.send(js.JSON.stringify(del))
+      */
     }
 
     wsParser.onerror = (event: ErrorEvent) => {
@@ -38,8 +54,10 @@ object ScalaJSMain extends js.JSApp {
 
     editor.addEventListener("change", (_: js.Any) => {
       val text = editor.getValue()
-      if (!text.isEmpty) {
-        wsParser.send(text)
+      if (!text.isEmpty && !isGraphChange()) {
+        isGraphChange() = true
+        val json = literal(operation = "input", text = text)
+        wsParser.send(js.JSON.stringify(json))
       }
     })
   }
